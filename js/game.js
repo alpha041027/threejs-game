@@ -3,13 +3,13 @@
  * 用于统一管理3D对象的材质颜色
  */
 var Colors = {
-    red: 0x96514d,        // 棕红（温和警示色，代替鲜红色）
-    white: 0xf5f0e1,      // 米白（柔和背景色或字体色）
-    brown: 0x6e4b1f,      // 深棕（树干、地面、飞机机身）
-    brownDark: 0x3e2b12,  // 深褐（阴影、金属结构）
-    pink: 0xc5a27e,       // 肤色米棕（自然皮肤或木纹装饰）
-    yellow: 0xd7b36a,     // 枯叶黄（金币、能量条、亮点）
-    blue: 0x4a7c59        // 森林绿（森林背景/能量晶体）
+    red: 0x96514d,        // (温和警示色，代替鲜红色）
+    white: 0xf5f0e1,      // （柔和背景色或字体色）
+    brown: 0x6e4b1f,      // （树干、地面、飞机机身）
+    brownDark: 0x3e2b12,  // （阴影、金属结构）
+    pink: 0xc5a27e,       // 自然皮肤）
+    yellow: 0xd7b36a,     // （金币、能量条、亮点）
+    blue: 0x4a7c59        // （背景/能量晶体）
 };
 
 
@@ -56,9 +56,9 @@ function resetGame(){
 
     // 飞机相关参数
           planeDefaultHeight:100,
-          planeAmpHeight:80,
+          planeAmpHeight:80,//飞机可以偏离默认高度的最大距离（振幅）
           planeAmpWidth:75,
-          planeMoveSensivity:0.005,
+          planeMoveSensivity:0.005,//移动的敏感度
           planeRotXSensivity:0.0008,
           planeRotZSensivity:0.0004,
           planeFallSpeed:.001,
@@ -355,19 +355,6 @@ var Pilot = function(){
   this.mesh.add(earR);
 }
 
-// 更新头发动画
-Pilot.prototype.updateHairs = function(){
-  //*
-   var hairs = this.hairsTop.children;
-
-   var l = hairs.length;
-   for (var i=0; i<l; i++){
-      var h = hairs[i];
-      h.scale.y = .75 + Math.cos(this.angleHairs+i/3)*.25;
-   }
-  this.angleHairs += game.speed*deltaTime*40;
-  //*/
-}
 
 /**
  * 飞机模型类
@@ -798,6 +785,8 @@ Particle.prototype.explode = function(pos, color, scale){
   var speed = .6+Math.random()*.2;
 
   //TweenMax 制作动效
+  // ease:Power2.easeOut：缓动函数，使动画在结束时逐渐减速。
+  //delay:Math.random() *.1：动画开始前的随机延迟
   TweenMax.to(this.mesh.rotation, speed, {x:Math.random()*12, y:Math.random()*12});
   TweenMax.to(this.mesh.scale, speed, {x:.1, y:.1, z:.1});
   TweenMax.to(this.mesh.position, speed, {x:targetX, y:targetY, delay:Math.random() *.1, ease:Power2.easeOut, onComplete:function(){
@@ -849,7 +838,7 @@ Coin = function(){
   this.dist = 0;
 }
 
-/*
+/*（与敌人相似）
 coinsInUse: 当前场景中活跃的金币；
 coinsPool: 金币对象池，避免频繁 new Coin()；
 this.mesh: 所有金币都挂载在该 Object3D 上，方便统一管理。 */
@@ -1042,8 +1031,8 @@ function loop(){
   }
 
 //其他全局动画
-  airplane.propeller.rotation.x +=.2 + game.planeSpeed * deltaTime*.005;
-  sea.mesh.rotation.z += game.speed*deltaTime;//*game.seaRotationSpeed;
+  airplane.propeller.rotation.x +=.2 + game.planeSpeed * deltaTime*.005;//根据飞机的当前速度动态调整螺旋桨旋转速度
+  sea.mesh.rotation.z += game.speed*deltaTime;//根据速度动态调整海水旋转速度
 
   if ( sea.mesh.rotation.z > 2*Math.PI)  sea.mesh.rotation.z -= 2*Math.PI;
 
@@ -1143,9 +1132,7 @@ function updatePlane(){
   // 插值移动实现平滑动画
   airplane.mesh.position.y += (targetY-airplane.mesh.position.y)*deltaTime*game.planeMoveSensivity;
   airplane.mesh.position.x += (targetX-airplane.mesh.position.x)*deltaTime*game.planeMoveSensivity;
-  //随飞行方向倾斜
-  airplane.mesh.rotation.z = (targetY-airplane.mesh.position.y)*deltaTime*game.planeRotXSensivity;
-  airplane.mesh.rotation.x = (airplane.mesh.position.y-targetY)*deltaTime*game.planeRotZSensivity;
+
  
   //摄像机的视角 fov 会根据速度/位置动态变化
   var targetCameraZ = normalize(game.planeSpeed, game.planeMinSpeed, game.planeMaxSpeed, game.cameraNearPos, game.cameraFarPos);
@@ -1158,7 +1145,6 @@ function updatePlane(){
   game.planeCollisionSpeedY += (0-game.planeCollisionSpeedY)*deltaTime * 0.03;
   game.planeCollisionDisplacementY += (0-game.planeCollisionDisplacementY)*deltaTime *0.01;
 
-  airplane.pilot.updateHairs();//飞行员动画更新
 }
 
 function showReplay(){
